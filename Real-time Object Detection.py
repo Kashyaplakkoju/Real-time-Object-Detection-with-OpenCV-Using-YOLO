@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-
+from PIL import Image, ImageDraw
 # Load YOLOv3 model
 yolo_net = cv2.dnn.readNet("path/to/yolov3.weights", "path/to/yolov3.cfg")
 
@@ -48,19 +48,32 @@ def perform_yolo_detection(img):
     # Apply non-maximum suppression
     indexes = np.array(cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)).flatten()
 
+           
     # Draw bounding boxes and labels on the image
-    font = cv2.FONT_HERSHEY_DUPLEX
+    font = cv2.FONT_HERSHEY_SIMPLEX  # Change font type
+    thickness = 3  # Thickness of the rectangle border
     colors = np.random.uniform(0, 255, size=(len(boxes), 3))
 
     for i in indexes.flatten():
         x, y, w, h = boxes[i]
         label = str(yolo_classes[class_ids[i]])
         confidence = str(round(confidences[i], 2))
-        color = colors[i]
+        color = tuple(int(c) for c in colors[i])
 
-        cv2.rectangle(img, (x, y), (x+w, y+h), color, 5)
-        cv2.putText(img, label + " " + confidence, (x, y+20), font, 1, (255, 255, 255), 2)
+        # Draw outer rectangle using OpenCV (unchanged)
+        cv2.rectangle(img, (x, y), (x+w, y+h), color, thickness)
 
+        # Calculate text size for dynamic positioning (unchanged)
+        (label_width, label_height), baseline = cv2.getTextSize(label + " " + confidence, font, 0.5, 2)
+
+        # Draw inner rectangle using PIL for rounded corners
+        pil_img = Image.fromarray(img)  # Convert OpenCV image to PIL image
+        draw = ImageDraw.Draw(pil_img)
+        draw.rounded_rectangle((x + 3, y - 20, x + label_width + 3, y + 2), radius=5, fill=color, outline=color, width=3)
+        img = np.array(pil_img)  # Convert back to OpenCV image
+
+        # Draw text using OpenCV (unchanged)
+        cv2.putText(img, label + " " + confidence, (x, y - 5), font, 0.5, (255, 255, 255), 1)
     return img
 
 # Open a live camera feed
