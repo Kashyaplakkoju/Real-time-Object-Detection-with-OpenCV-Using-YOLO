@@ -3,3 +3,4 @@ Real-time YOLO Object Detection using OpenCV and pre-trained model. Detects and 
 This Python script demonstrates real-time object detection using the YOLOv3 (You Only Look Once) model and OpenCV. The code loads the YOLOv3 model, performs object detection on each frame from the default camera, and displays the output with bounding boxes and class labels.
 
 an object detection based on a pre-trained model - YOLOv3 Pre-trained Weights (yolov3.weights) (237 MB)
+https://pjreddie.com/media/files/yolov3.weights
